@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const JWT_SECRET = 'u9#kjJ8z!kXP?bRg7z!dTwr@2Tx+4'; // Secret key for JWT
 const REFRESH_SECRET ='u9#kjJ8z!kXP?bRg4z!dTwr@2Tx+9';
+const redisClient = require('../utils/redisClient');
 // Register new user
 exports.registerUser = async (req, res) => {
   const { username, email, password } = req.body;
@@ -67,5 +68,19 @@ exports.refreshToken = (req, res) => {
     const token = jwt.sign({ userId: user._id, userRole: user.role }, JWT_SECRET, { expiresIn: '1h' });
     res.json({messege:'Refresh Sucessfull', token });
   });
+};
+
+exports.logoutUser = async (req, res) => {
+  const token = req.header('Authorization')?.replace('Bearer ', '');
+  if (!token) return res.status(400).json({ message: 'Token not found' });
+
+  try {
+    // Blacklist the token for 1 hour (or until its expiry)
+    await redisClient.setEx(`bl_${token}`, 3600, 'blacklisted');
+    res.status(200).json({ message: 'Logged out successfully' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Server error during logout' });
+  }
 };
 
