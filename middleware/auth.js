@@ -10,10 +10,6 @@ const auth = async(req, res, next) => {
 
 
   try {
-    const isBlacklisted = await redisClient.get(`bl_${token}`);
-    if (isBlacklisted) {
-      return res.status(401).json({ message: 'Token has been logged out' });
-    }
     const decoded = jwt.verify(token, JWT_SECRET);
     req.userId = decoded.userId; // Attach userId to request
     req.userRole = decoded.userRole; // Attach userRole to request

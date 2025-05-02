@@ -10,5 +10,7 @@ router.post('/register', upload.single('image'), auth, isadmin,  productControll
 router.patch('/edit/:id', upload.single('image'), auth, isadmin,  productController.editProduct);
 router.get('/', auth, productController.getProduct);
 router.delete('/delete/:id', auth, isadmin,  productController.deleteProduct);
+router.get('/search', auth,  productController.searchProduct);
+router.get('/filter', auth,  productController.filterProduct);
 
 module.exports = router;
